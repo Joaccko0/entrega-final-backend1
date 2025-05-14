@@ -1,0 +1,18 @@
+<h1 class="mb-4">🏷️ Catálogo de Productos</h1>
+<div class="row row-cols-1 row-cols-md-3 g-4">
+  {{#each products}}
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">{{this.title}}</h5>
+          <p class="card-text">{{this.description}}</p>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item"><strong>Precio:</strong> ${{this.price}}</li>
+          <li class="list-group-item"><strong>Stock:</strong> {{this.stock}}</li>
+          <li class="list-group-item"><strong>Categoría:</strong> {{this.category}}</li>
+        </ul>
+      </div>
+    </div>
+  {{/each}}
+</div>
