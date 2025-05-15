@@ -4,7 +4,7 @@ import ProductManager from "../managers/ProductManager.js";
 // Instanciamos el router de express para manejar las rutas
 const productsRouter = express.Router();
 // Instanciamos el manejador de nuestro archivo de productos
-const productManager = new ProductManager("./src/data/products.json");
+const productManager = new ProductManager();
 
 productsRouter.get("/", async (req, res) => {
     try {
@@ -32,6 +32,7 @@ productsRouter.get("/", async (req, res) => {
       res.status(201).send(product);
     } catch (error) {
       res.status(500).send({ message: error.message });
+      console.error(error);
     }
   });
   
@@ -47,8 +48,8 @@ productsRouter.get("/", async (req, res) => {
   
   productsRouter.delete("/:pid", async (req, res) => {
     try {
-      await productManager.deleteProductById(req.params.pid);
-      req.app.get('io').emit('delete-product', pid);
+      await productManager.deleteProduct(req.params.pid);
+      req.app.get('io').emit('delete-product', req.params.pid);
       res.status(200).send({ message: `Producto con id: ${req.params.pid} eliminado` });
     } catch (error) {
       res.status(404).send({ message: error.message });

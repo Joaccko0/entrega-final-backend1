@@ -1,14 +1,22 @@
-import fs from "fs";
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Para obtener __dirname en módulos ES
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class ProductManager {
-    constructor(pathFile) {
-      this.pathFile = pathFile;
+    #path;
+
+    constructor(filename = "products.json") {
+        this.#path = path.join(__dirname, '..', 'data', filename);
     }
 
     // Lee el archivo
     async #readFile() {
         try {
-            const data = await fs.readFile(this.path, 'utf-8');
+            const data = await fs.readFile(this.#path, 'utf-8');
             return JSON.parse(data);
         } catch (error) {
             return [];
@@ -17,7 +25,7 @@ class ProductManager {
 
     // Escribe al archivo
     async #writeFile(data) {
-        await fs.writeFile(this.path, JSON.stringify(data, null, 2));
+        await fs.writeFile(this.#path, JSON.stringify(data, null, 2));
     }
 
     // getProducts
@@ -28,9 +36,9 @@ class ProductManager {
     async getProductById(id) {
         try {
             const products = await this.#readFile();
-            const product = products.findIndex((prod) => prod.id === parseInt(idProduct));
+            const product = products.find(p => p.id === parseInt(id));
 
-            if (!product) throw new Error(`Producto con id: ${idProduct} no encontrado`);
+            if (!product) throw new Error(`Producto con id: ${id} no encontrado`);
             return product;
         }
         catch(error) {
@@ -54,7 +62,7 @@ class ProductManager {
         
         try {
             const newId = await this.#generateId(products)
-            const newProduct = { id: newId, ...newProduct, status: true, thumbnail: "" }
+            const newProduct = { id: newId, ...productData, status: true, thumbnail: "" }
             products.push(newProduct);
             await this.#writeFile(products);
         

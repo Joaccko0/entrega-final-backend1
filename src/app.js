@@ -6,6 +6,10 @@ import { engine } from "express-handlebars";
 import { Server } from "socket.io";
 import http from "http";
 import ProductManager from "./managers/ProductManager.js";
+import { connectDB } from "./config/db.js";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
@@ -18,7 +22,7 @@ app.set("views", "./src/views");
 app.set('io', io);
 
 // Puerto del servidor
-const PORT = 8080;
+const PORT = 8081;
 app.use(express.json());
 app.use(express.static("public"));
 
@@ -33,5 +37,6 @@ io.on("connection", (socket)=> {
   console.log("Nuevo usuario conectado");
 });
 
-//iniciamos el servidor y escuchamos en el puerto definido
+// Nos conectaoms a la BD e iniciamos el servidor y escuchamos en el puerto definido
+connectDB();
 server.listen(PORT, ()=> console.log(`Servidor corriendo en: http://localhost:${PORT}`) );

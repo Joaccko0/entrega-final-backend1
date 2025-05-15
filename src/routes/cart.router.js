@@ -4,7 +4,7 @@ import CartManager from "../managers/CartManager.js";
 // Instanciamos el router de express para manejar las rutas
 const cartRouter = express.Router();
 // Instanciamos el manejador de nuestro archivo de carrito
-const cartManager = new CartManager("./src/data/cart.json");
+const cartManager = new CartManager("./src/data/carts.json");
 
 cartRouter.post("/", async(req, res) => {
     try {
