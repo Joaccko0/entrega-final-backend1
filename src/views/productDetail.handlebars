@@ -1,0 +1,37 @@
+<h1>{{product.title}}</h1>
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="card-title">{{product.title}}</h5>
+    <p class="card-text">{{product.description}}</p>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item"><strong>Precio:</strong> ${{product.price}}</li>
+      <li class="list-group-item"><strong>Stock:</strong> {{product.stock}}</li>
+      <li class="list-group-item"><strong>Categoría:</strong> {{product.category}}</li>
+    </ul>
+    <button class="btn btn-success mt-2" id="add-to-cart" data-id="{{product._id}}">Agregar al carrito</button>
+    <a href="/" class="btn btn-secondary mt-2">Volver</a>
+  </div>
+</div>
+
+<script>
+  let cartId = localStorage.getItem("cartId");
+  async function ensureCart() {
+    if (!cartId) {
+      const res = await fetch("/api/carts", { method: "POST" });
+      const data = await res.json();
+      cartId = data.payload._id;
+      localStorage.setItem("cartId", cartId);
+    }
+    return cartId;
+  }
+  document.getElementById("add-to-cart").addEventListener("click", async function() {
+    const pid = this.dataset.id;
+    const cid = await ensureCart();
+    const res = await fetch(`/api/carts/${cid}/product/${pid}`, { method: "POST", headers: { "Content-Type": "application/json" } });
+    if (res.ok) {
+      alert("Producto agregado al carrito!");
+    } else {
+      alert("Hubo un error al agregar.");
+    }
+  });
+</script>

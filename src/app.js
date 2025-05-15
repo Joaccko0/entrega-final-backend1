@@ -16,7 +16,13 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 // Handlebars
-app.engine("handlebars", engine());
+app.engine("handlebars", engine({
+  helpers: {
+    eq: (a, b) => a === b,
+    multiply: (a, b) => a * b,
+    sum: (products) => products.reduce((acc, p) => acc + (p.quantity * p.product.price), 0)
+  }
+}));
 app.set("view engine", "handlebars");
 app.set("views", "./src/views");
 app.set('io', io);

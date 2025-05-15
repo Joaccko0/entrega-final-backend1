@@ -1,0 +1,107 @@
+<h1>🛒 Carrito</h1>
+{{#if cart.products.length}}
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Producto</th>
+      <th>Categoría</th>
+      <th>Precio</th>
+      <th>Cantidad</th>
+      <th>Subtotal</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each cart.products}}
+      <tr data-pid="{{this.product._id}}">
+        <td>{{this.product.title}}</td>
+        <td>{{this.product.category}}</td>
+        <td>${{this.product.price}}</td>
+        <td>
+          <button class="btn btn-outline-secondary btn-sm decrease">-</button>
+          <span class="mx-2">{{this.quantity}}</span>
+          <button class="btn btn-outline-secondary btn-sm increase">+</button>
+        </td>
+        <td>${{multiply this.quantity this.product.price}}</td>
+        <td>
+          <button class="btn btn-danger btn-sm remove-product">Eliminar</button>
+        </td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+<button class="btn btn-warning mb-3" id="empty-cart">Vaciar carrito</button>
+<p class="fw-bold">Total: $
+  {{sum cart.products}}
+</p>
+{{else}}
+<div class="alert alert-info">El carrito está vacío.</div>
+{{/if}}
+<a href="/" class="btn btn-secondary">Volver al catálogo</a>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    let cartId = localStorage.getItem("cartId");
+    if (!cartId) {
+      alert("No tienes carrito aún.");
+      window.location.href = "/";
+      return;
+    }
+
+    // Eliminar producto
+    document.querySelectorAll(".remove-product").forEach(btn => {
+      btn.addEventListener("click", async function() {
+        const pid = this.closest("tr").dataset.pid;
+        if (confirm("¿Eliminar este producto del carrito?")) {
+          const res = await fetch(`/api/carts/${cartId}/products/${pid}`, { method: "DELETE" });
+          if (res.ok) location.reload();
+          else alert("Error eliminando el producto");
+        }
+      });
+    });
+
+    // Vaciar carrito
+    document.getElementById("empty-cart").addEventListener("click", async function() {
+      if (confirm("¿Vaciar todo el carrito?")) {
+        const res = await fetch(`/api/carts/${cartId}`, { method: "DELETE" });
+        if (res.ok) location.reload();
+        else alert("Error vaciando el carrito");
+      }
+    });
+
+    // Modificar cantidad
+    document.querySelectorAll(".increase").forEach(btn => {
+      btn.addEventListener("click", async function() {
+        const tr = this.closest("tr");
+        const pid = tr.dataset.pid;
+        const currentQty = parseInt(tr.querySelector("span").innerText);
+        const newQty = currentQty + 1;
+        const res = await fetch(`/api/carts/${cartId}/products/${pid}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ quantity: newQty })
+        });
+        if (res.ok) location.reload();
+        else alert("Error al cambiar cantidad");
+      });
+    });
+
+    document.querySelectorAll(".decrease").forEach(btn => {
+      btn.addEventListener("click", async function() {
+        const tr = this.closest("tr");
+        const pid = tr.dataset.pid;
+        const currentQty = parseInt(tr.querySelector("span").innerText);
+        if (currentQty <= 1) return;
+        const newQty = currentQty - 1;
+        const res = await fetch(`/api/carts/${cartId}/products/${pid}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ quantity: newQty })
+        });
+        if (res.ok) location.reload();
+        else alert("Error al cambiar cantidad");
+      });
+    });
+
+  }); // fin DOMContentLoaded
+</script>
